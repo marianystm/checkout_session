@@ -92,6 +92,7 @@
     "side-channel": "^1.0.6",
     "simple-update-notifier": "^2.0.0",
     "statuses": "^2.0.1",
+    "stripe": "^16.2.0",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",
     "toidentifier": "^1.0.1",
@@ -103,7 +104,6 @@
     "utils-merge": "^1.0.1",
     "vary": "^1.1.2"
   },
-  "devDependencies": {},
   "scripts": {
     "dev": "nodemon index.js"
   },
