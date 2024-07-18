@@ -4,7 +4,7 @@ export const CheckoutButton = () => {
     const handleCheckout = async () => {
         try {
             
-            const response = await axios.post('http://localhost:3000/create-checkout-session');
+            const response = await axios.post('http://localhost:/create-checkout-session');
             
             window.location.href = response.data.url;
         } catch (error) {

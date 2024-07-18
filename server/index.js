@@ -21,7 +21,7 @@ app.post('/create-checkout-session', async (req, res) => {
     try {
         const session = await stripe.checkout.sessions.create({
             line_items: [{
-                price: 'price_1P4TJGJFlaokILLiOhPhjeop',
+                price: 'price_1P4TJGJFlaokILLiOhPhjeop', //METODO nu fast värde, ändra till rörligt 
                 quantity: 1,
             }],
             mode: 'payment',
@@ -52,6 +52,21 @@ app.post('/', (req, res) => {
         res.status(200).send({ message: "Du är inloggad!" });
     } else {
         res.status(401).send({ message: "Fel användarnamn eller lösenord!" });
+    }
+});
+
+app.get('/products', async (req, res) => {
+    try {
+        const products = await stripe.products.list({
+            limit: 4 // Du kan anpassa detta värde efter behov
+        });
+        const prices = await stripe.prices.list({
+            limit: 4 // Matcha antalet produkter
+        });
+        res.json({ products: products.data, prices: prices.data });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).send({ error: error.message });
     }
 });
 
