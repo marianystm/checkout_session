@@ -6,6 +6,7 @@ import { ShoppingCart } from "./pages/ShoppingCart";
 import { Home } from "./pages/Home";
 import { PaymentCancel } from "./pages/PaymentCancel";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
+import { CreateAccount } from "./pages/CreateAccount";
 
 export const router = createBrowserRouter([{
     path: "/",
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([{
         {
             path: "/cancel",
             element: <PaymentCancel/>
+        },
+        {
+            path: "/createaccount",
+            element: <CreateAccount/>
         }
     ]
 }])

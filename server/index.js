@@ -1,7 +1,10 @@
 const stripe = require('stripe')('sk_test_51P4SxmJFlaokILLiJdhU19rSojwuwKXoivG7TtdA2qmHDRXcKKgGvI0dua8RgEST6hNkBBuwFL9P21kLJ3dRfGQ200KD3FZGvT');
 const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const cookieSession = require('cookie-session');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 3000;
@@ -44,16 +47,18 @@ app.use(cookieSession({
     maxAge: 24 * 60 * 60 * 1000 
 }));
 
-app.post('/', (req, res) => {
-    const { username, password } = req.body;
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
 
-    if (username === 'admin' && password === 'password') {
-        req.session.username = username;
-        res.status(200).send({ message: "Du är inloggad!" });
+    const user = users[email];
+    if (user && await bcrypt.compare(password, user.hashedPassword)) {
+        const token = jwt.sign({ email: user.email, customerId: user.customerId }, 'your_jwt_secret', { expiresIn: '24h' });
+        res.json({ message: "Du är inloggad!", token });
     } else {
-        res.status(401).send({ message: "Fel användarnamn eller lösenord!" });
+        res.status(401).json({ message: "Fel användarnamn eller lösenord!" });
     }
 });
+
 
 app.get('/products', async (req, res) => {
     console.log("hej");
@@ -71,6 +76,24 @@ app.get('/products', async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
+
+const users = {};
+
+
+app.post('/register', async (req, res) => {
+    const { email, name, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const customer = await stripe.customers.create({ email, name });
+
+        users[email] = { email, name, hashedPassword, customerId: customer.id };
+
+        res.status(200).json({ message: "Användare registrerad", customerId: customer.id });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 
 
 app.listen(PORT, () => {
