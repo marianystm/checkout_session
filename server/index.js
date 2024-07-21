@@ -8,7 +8,7 @@ const PORT = 3000;
 
 
 app.use(cors({
-    origin: 'http://localhost:5174'
+    origin: 'http://localhost:5173'
 }));
 
 app.use(express.json());
@@ -56,6 +56,7 @@ app.post('/', (req, res) => {
 });
 
 app.get('/products', async (req, res) => {
+    console.log("hej");
     try {
         const products = await stripe.products.list({
             limit: 4 // Du kan anpassa detta värde efter behov
@@ -63,6 +64,7 @@ app.get('/products', async (req, res) => {
         const prices = await stripe.prices.list({
             limit: 4 // Matcha antalet produkter
         });
+       
         res.json({ products: products.data, prices: prices.data });
     } catch (error) {
         console.error('Error fetching products:', error);

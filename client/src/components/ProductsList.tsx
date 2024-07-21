@@ -3,14 +3,16 @@ import { useEffect, useState } from "react";
 import { Price } from "../models/IPrices";
 import { Product } from "../models/IProduct";
 
-export const Products = () => {
+export const ProductsList = () => {
   const [products, setProducts] = useState<CombinedProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    console.log("Hej");
     const fetchProducts = async () => {
       try {
+        console.log("Hej");
         const response = await axios.get<{products: Product[], prices: Price[]}>("http://localhost:3000/products");
         const { products, prices } = response.data;
 
@@ -53,4 +55,4 @@ export const Products = () => {
   );
 };
 
-export default Products;
+export default ProductsList;
