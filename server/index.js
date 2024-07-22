@@ -19,27 +19,38 @@ app.use(express.static('public'));
 
 const YOUR_DOMAIN = `http://localhost:${PORT}`;
 
+
 app.post('/create-checkout-session', async (req, res) => {
-    console.log('Checkout session request received');
+    if (!req.session.username) {
+        return res.status(401).json({ message: "Inte inloggad" });
+    }
+
+    const cartItems = req.body.cartItems;
+
     try {
+        const line_items = cartItems.map(item => ({
+            price: item.priceId,
+            quantity: item.quantity
+        }));
+
+        const customer = users[req.session.username].customerId;
+
         const session = await stripe.checkout.sessions.create({
-            line_items: [{
-                price: 'price_1P4TJGJFlaokILLiOhPhjeop', //METODO nu fast värde, ändra till rörligt 
-                quantity: 1,
-            }],
+            customer: customer,  
+            line_items,
             mode: 'payment',
             success_url: `${YOUR_DOMAIN}/success`,
             cancel_url: `${YOUR_DOMAIN}/cancel`,
         });
-      
-        res.json({ url: session.url }); 
+
+        res.status(200).json({ url: session.url });
     } catch (error) {
-        console.error('Error creating session:', error);
-        res.status(500).send({ error: "Failed to create checkout session" });
+        console.error('Error creating checkout session:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
-  
+
 
 app.use(cookieSession({
     name: 'session',
@@ -47,18 +58,16 @@ app.use(cookieSession({
     maxAge: 24 * 60 * 60 * 1000 
 }));
 
-app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+app.post('/', (req, res) => {
+    const { username, password } = req.body;
 
-    const user = users[email];
-    if (user && await bcrypt.compare(password, user.hashedPassword)) {
-        const token = jwt.sign({ email: user.email, customerId: user.customerId }, 'your_jwt_secret', { expiresIn: '24h' });
-        res.json({ message: "Du är inloggad!", token });
+    if (username === 'admin' && password === 'password') {
+        req.session.username = username;
+        res.status(200).send({ message: "Du är inloggad!" });
     } else {
-        res.status(401).json({ message: "Fel användarnamn eller lösenord!" });
+        res.status(401).send({ message: "Fel användarnamn eller lösenord!" });
     }
 });
-
 
 app.get('/products', async (req, res) => {
     console.log("hej");
@@ -86,13 +95,21 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const customer = await stripe.customers.create({ email, name });
 
-        users[email] = { email, name, hashedPassword, customerId: customer.id };
+        users[email] = {
+            email,
+            name,
+            hashedPassword,
+            customerId: customer.id  
+        };
+
+        req.session.username = email; 
 
         res.status(200).json({ message: "Användare registrerad", customerId: customer.id });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 
 

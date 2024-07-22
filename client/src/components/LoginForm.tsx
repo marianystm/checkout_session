@@ -1,4 +1,3 @@
-// LoginForm.tsx
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ export const LoginForm = () => {
         password,
       });
       setMessage(response.data.message);
-      setIsLoggedIn(true); // Anta att användaren är inloggad om inget fel sker
+      setIsLoggedIn(true); 
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setMessage(error.response.data.message);

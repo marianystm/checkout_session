@@ -2,35 +2,53 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Price } from "../models/IPrices";
 import { Product } from "../models/IProduct";
+import CheckoutButton from "./CheckoutButton";
+
+interface CombinedProductData {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  priceId: string;
+}
 
 export const ProductsList = () => {
   const [products, setProducts] = useState<CombinedProductData[]>([]);
+  const [cart, setCart] = useState<CombinedProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    console.log("Hej");
     const fetchProducts = async () => {
       try {
-        console.log("Hej");
-        const response = await axios.get<{products: Product[], prices: Price[]}>("http://localhost:3000/products");
+        const response = await axios.get<{
+          products: Product[];
+          prices: Price[];
+        }>("http://localhost:3000/products");
         const { products, prices } = response.data;
 
-        const combinedProducts = products.map(product => {
-          const priceDetail = prices.find(price => price.product === product.id);
+        const combinedProducts = products.map((product) => {
+          const priceDetail = prices.find(
+            (price) => price.product === product.id
+          );
           return {
             id: product.id,
             name: product.name,
-            description: product.description || "No description available",
-            price: priceDetail ? `${priceDetail.unit_amount / 100} ${priceDetail.currency.toUpperCase()}` : 'No price available'
+            description: product.description || "Ingen beskrivning tillgänglig",
+            price: priceDetail
+              ? `${
+                  priceDetail.unit_amount / 100
+                } ${priceDetail.currency.toUpperCase()}`
+              : "Inget pris tillgängligt",
+            priceId: priceDetail ? priceDetail.id : "", // Hämta Stripe pris-ID
           };
         });
 
         setProducts(combinedProducts);
         setLoading(false);
       } catch (error: any) {
-        console.error("Error fetching products:", error.message);
-        setError("Failed to fetch products: " + error.message);
+        console.error("Fel vid hämtning av produkter:", error.message);
+        setError("Misslyckades att hämta produkter: " + error.message);
         setLoading(false);
       }
     };
@@ -38,19 +56,38 @@ export const ProductsList = () => {
     fetchProducts();
   }, []);
 
-  if (loading) return <p>Loading products...</p>;
+  const addToCart = (product: CombinedProductData) => {
+    setCart([...cart, product]); 
+    console.log("Nuvarande kundvagn:", cart);
+  };
+
+  if (loading) return <p>Laddar produkter...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div>
-      <h1>Products</h1>
+      <h1>Produkter</h1>
       <ul>
         {products.map((product) => (
           <li key={product.id}>
             {product.name} - {product.description} - {product.price}
+            <button onClick={() => addToCart(product)}>
+              Lägg till i kundvagn
+            </button>
           </li>
         ))}
       </ul>
+      <div>
+        <h2>Kundvagn</h2>
+        <ul>
+          {cart.map((item, index) => (
+            <li key={index}>
+              {item.name} - {item.price}
+            </li>
+          ))}
+        </ul>
+        <CheckoutButton cart={cart} />
+      </div>
     </div>
   );
 };

@@ -4,7 +4,7 @@ export const Navigation = () => {
     return<>
     <nav>
         <ul>
-            <li><NavLink to={'/'}>Hem</NavLink></li>
+            <li><NavLink to={'/'}>Logga in</NavLink></li>
             <li><NavLink to={'/products'}>Produkter</NavLink></li>
             <li><NavLink to={'/shoppingcart'}>Kundvagn</NavLink></li>
             <li><NavLink to={'/createaccount'}>Skapa konto</NavLink></li>

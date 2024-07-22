@@ -1,22 +1,28 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const CheckoutButton = () => {
-    const handleCheckout = async () => {
-        try {
-            
-            const response = await axios.post('http://localhost:/create-checkout-session');
-            
-            window.location.href = response.data.url;
-        } catch (error) {
-            console.error('Failed to create a checkout session:', error);
-        }
-    };
+interface CheckoutButtonProps {
+  cart: CombinedProductData[];
+}
 
-    return (
-        <button onClick={handleCheckout}>
-            Checkout
-        </button>
-    );
+export const CheckoutButton = ({ cart }: CheckoutButtonProps) => {
+  const handleCheckout = async () => {
+    try {
+        const cartItems = cart.map((item) => ({
+            priceId: item.priceId,  
+            quantity: 1
+        }));
+
+      const response = await axios.post(
+        "http://localhost:3000/create-checkout-session",
+        { cartItems }
+      );
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error("Failed to create a checkout session:", error);
+    }
+  };
+
+  return <button onClick={handleCheckout}>Checkout</button>;
 };
 
 export default CheckoutButton;
