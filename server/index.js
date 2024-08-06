@@ -9,10 +9,17 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
 
-
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin: 'http://localhost:5173',
+    credentials: true 
 }));
+
+app.use(cookieSession({
+    name: 'session',
+    keys: ['secret1', 'secret2'],
+    maxAge: 24 * 60 * 60 * 1000 
+}));
+
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -52,20 +59,14 @@ app.post('/create-checkout-session', async (req, res) => {
 
 
 
-app.use(cookieSession({
-    name: 'session',
-    keys: ['secret1', 'secret2'],
-    maxAge: 24 * 60 * 60 * 1000 
-}));
-
-app.post('/', (req, res) => {
-    const { username, password } = req.body;
-
-    if (username === 'admin' && password === 'password') {
-        req.session.username = username;
-        res.status(200).send({ message: "Du är inloggad!" });
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = users[email];
+    if (user && await bcrypt.compare(password, user.hashedPassword)) {
+        req.session.username = email;
+        res.status(200).json({ message: "Du är inloggad!" });
     } else {
-        res.status(401).send({ message: "Fel användarnamn eller lösenord!" });
+        res.status(401).json({ message: "Fel e-postadress eller lösenord!" });
     }
 });
 
@@ -109,6 +110,19 @@ app.post('/register', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+app.get('/success', (req, res) => {
+
+    res.status(200).send("Köp genomfört! Tack för ditt köp.");
+   
+});
+
+app.get('/cancel', (req, res) => {
+    res.status(200).send("Köp avbrutet. Du har inte debiterats.");
+    
+});
+
 
 
 

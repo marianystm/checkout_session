@@ -14,7 +14,7 @@ export const CheckoutButton = ({ cart }: CheckoutButtonProps) => {
 
       const response = await axios.post(
         "http://localhost:3000/create-checkout-session",
-        { cartItems }
+        { cartItems }, { withCredentials: true }
       );
       window.location.href = response.data.url;
     } catch (error) {

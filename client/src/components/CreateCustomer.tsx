@@ -11,7 +11,7 @@ export const CreateCustomer = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/register', { email, name, password });
+            const response = await axios.post('http://localhost:3000/register', { email, name, password }, { withCredentials: true });
             setMessage(response.data.message);
         } catch (error) {
             setMessage('Registrering misslyckades: ');
