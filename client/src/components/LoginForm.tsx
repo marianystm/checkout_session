@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useAuth } from './AuthContext'; 
+import { useAuth } from './AuthContext';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
-  const { login, logout, isLoggedIn } = useAuth(); 
+  const { login } = useAuth();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -16,8 +16,8 @@ export const LoginForm: React.FC = () => {
         password,
       }, { withCredentials: true });
       if (response.data) {
-        login(); 
-        setMessage(response.data.message);
+        login({ email, customerId: response.data.customerId });  // Antag att customerId returneras vid inloggning
+        setMessage("Inloggad!");
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -25,38 +25,23 @@ export const LoginForm: React.FC = () => {
       } else {
         setMessage("Ett fel inträffade!");
       }
-      logout();  
     }
-  };
-
-  const handleLogout = () => {
-    setEmail("");
-    setPassword("");
-    logout();  
-    setMessage("Du har loggats ut.");
   };
 
   return (
     <div>
-      {!isLoggedIn ? (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>E-post:</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div>
-            <label>Lösenord:</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <button type="submit">Logga in</button>
-          <p>{message}</p>
-        </form>
-      ) : (
-        <div>
-          <p>Du är inloggad!</p>
-          <button onClick={handleLogout}>Logga ut</button>
-        </div>
-      )}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <label>
+        E-post:
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </label>
+      <label>
+        Lösenord:
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </label>
+      <button type="submit">Logga in</button>
+      <div>{message}</div>
+    </form>
+  </div>
   );
 };
