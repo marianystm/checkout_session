@@ -1,4 +1,6 @@
-const stripe = require('stripe')('sk_test_51P4SxmJFlaokILLiJdhU19rSojwuwKXoivG7TtdA2qmHDRXcKKgGvI0dua8RgEST6hNkBBuwFL9P21kLJ3dRfGQ200KD3FZGvT');
+require('dotenv').config();
+
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -115,6 +117,12 @@ app.post('/login', async (req, res) => {
     });
 });
 
+app.post('/logout', (req, res) => {
+    req.session = null; 
+    res.status(200).json({ message: "Utloggad framgångsrikt!" });
+});
+
+
 app.post('/register', async (req, res) => {
     const { email, name, password } = req.body;
     try {
@@ -206,3 +214,6 @@ app.listen(PORT, () => {
 
 
 //VISA KINGEN FLÖDET: INLOGGNINGS BUGG, UTLÄMNINGSSTÄLLE I ORDER.JSON filen?, ENV FIL!!!!, README fitt fil? redirect från success sidan.
+
+
+//logga ut och nollstölla session 
