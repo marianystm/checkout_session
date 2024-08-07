@@ -2,9 +2,10 @@ import axios from "axios";
 
 interface CheckoutButtonProps {
   cart: CombinedProductData[];
+  pickupLocation: string;
 }
 
-export const CheckoutButton = ({ cart }: CheckoutButtonProps) => {
+export const CheckoutButton = ({ cart, pickupLocation }: CheckoutButtonProps) => {
   const handleCheckout = async () => {
     try {
         const cartItems = cart.map((item) => ({
@@ -14,7 +15,7 @@ export const CheckoutButton = ({ cart }: CheckoutButtonProps) => {
 
       const response = await axios.post(
         "http://localhost:3000/create-checkout-session",
-        { cartItems },{ withCredentials: true }
+        { cartItems, pickupLocation }, { withCredentials: true }
       );
       window.location.href = response.data.url;
     } catch (error) {

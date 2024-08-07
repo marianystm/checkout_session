@@ -203,3 +203,6 @@ app.get('/cancel', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
+//VISA KINGEN FLÖDET: INLOGGNINGS BUGG, UTLÄMNINGSSTÄLLE I ORDER.JSON filen?, ENV FIL!!!!, README fitt fil? redirect från success sidan.
